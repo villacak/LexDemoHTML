@@ -1,0 +1,60 @@
+input#wisdom {
+    padding: 4px;
+    font-size: 1em;
+    width: 400px
+}
+
+input::placeholder {
+    color: #ccc;
+    font-style: italic;
+}
+
+p.userRequest {
+    margin: 4px;
+    padding: 4px 10px 4px 10px;
+    border-radius: 4px;
+    min-width: 50%;
+    max-width: 85%;
+    float: left;
+    background-color: #7d7;
+}
+
+p.lexResponse {
+    margin: 4px;
+    padding: 4px 10px 4px 10px;
+    border-radius: 4px;
+    text-align: right;
+    min-width: 50%;
+    max-width: 85%;
+    float: right;
+    background-color: #bbf;
+    font-style: italic;
+}
+
+p.lexError {
+    margin: 4px;
+    padding: 4px 10px 4px 10px;
+    border-radius: 4px;
+    text-align: right;
+    min-width: 50%;
+    max-width: 85%;
+    float: right;
+    background-color: #f77;
+}
+
+.buttons {
+    width: 100%;
+
+    table-layout: fixed;
+    border-collapse: collapse;
+    /*background-color: #cccccc;*/
+}
+
+
+
+.responseCardBorders {
+    border-left: 10px;
+    border-right: 10px;
+    border-top: 5px;
+    border-bottom: 5px;
+}
