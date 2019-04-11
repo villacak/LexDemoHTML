@@ -4,11 +4,13 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="with=device-width, initial-scale=1.0">
     <title>Amazon Lex for JavaScript - Sample Application (Book Appointment)</title>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.41.0.min.js"></script>
     <script src="js/jquery-3.3.1.js"></script>
     <script src="js/bootstrap.js" ></script>
     <script src="js/bootstrap.bundle.js" ></script>
+    <script src="js/myLexLibrary.js" ></script>
 
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="css/bootstrap-grid.min.css" />
@@ -17,15 +19,17 @@
 </head>
 
 <body>
-<h1 style="text-align: left">Amazon Lex - Book Appointment</h1>
-<p style="width: 400px">
+<h1 style="text-align: center">Amazon Lex - Book Appointment</h1>
+<p style="width: 100%; text-align: center">
     This little chatbot shows how easy it is to incorporate
     <a href="https://aws.amazon.com/lex/" title="Amazon Lex (product)" target="_new">Amazon Lex</a> into your web pages.  Try it out.
 </p>
-<div id="conversation" style="width: 400px; height: 400px; border: 1px solid #ccc; background-color: #eee; padding: 4px; overflow: scroll"></div>
-<form id="chatform" style="margin-top: 10px" onsubmit="return pushChat();">
-    <input type="text" id="wisdom" size="80" value="" placeholder="Book an appointment">
-</form>
+<div class="container">
+    <div id="conversation" class="container" style="width: 100%; height: 400px; border: 1px solid #ccc; background-color: #eee; padding: 4px; overflow: scroll"></div>
+    <form id="chatform" class="container" style="margin-top: 10px; margin-left: -12px" onsubmit="return pushChat();">
+        <label><input type="text" class="form-control" id="wisdom" size="80" value="" placeholder="Book an appointment"></label>
+    </form>
+</div>
 <script type="text/javascript">
     // set the focus to the input box
     document.getElementById("wisdom").focus();
@@ -34,232 +38,12 @@
     AWS.config.region = '<yourCognitoRegion>'; // Region
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         // Provide your Pool Id here
-        IdentityPoolId: '<yourCognitoPoolId>',
+        IdentityPoolId: '<cognitoPoolId>'
     });
 
     var lexruntime = new AWS.LexRuntime();
     var lexUserId = '<yourUser>'; // + Date.now();
     var sessionAttributes = {};
-
-
-    function pushChat() {
-        // if there is text to be sent...
-        var wisdomText = document.getElementById('wisdom');
-        if (wisdomText && wisdomText.value && wisdomText.value.trim().length > 0) {
-
-            // disable input to show we're sending it
-            var wisdom = wisdomText.value.trim();
-            wisdomText.value = '...';
-            wisdomText.locked = true;
-
-            // send it to the Lex runtime
-            var params = {
-                botAlias: '$LATEST',
-                botName: 'ScheduleAppointment',
-                inputText: wisdom,
-                userId: lexUserId,
-                sessionAttributes: sessionAttributes
-            };
-            showRequest(wisdom);
-            lexruntime.postText(params, function(err, data) {
-                if (err) {
-                    console.log(err, err.stack);
-                    showError('Error:  ' + err.message + ' (see console for details)')
-                }
-                if (data) {
-                    // capture the sessionAttributes for the next cycle
-                    sessionAttributes = data.sessionAttributes;
-                    // show response and/or error/dialog status
-                    showResponse(data);
-                }
-                // re-enable input
-                wisdomText.value = '';
-                wisdomText.locked = false;
-            });
-        }
-        // we always cancel form submission
-        return false;
-    }
-
-
-    function changeButtonToSelected(idName) {
-        var elem = document.getElementById(idName);
-        // elem.classList.toggle("btn btn-primary");
-        if (elem) {
-            elem.className = "btn btn-primary";
-        }
-        // idName.className = "btn btn-primary";
-    }
-
-
-    function pushButtonSelection(pocButtonValue, idName) {
-        // if there is text to be sent...
-        changeButtonToSelected(idName);
-        var wisdomText = document.getElementById(idName);
-        if (wisdomText && wisdomText.value && wisdomText.value.trim().length > 0) {
-
-            // disable input to show we're sending it
-            var wisdom = wisdomText.value.trim();
-            wisdomText.value = '...';
-            wisdomText.locked = true;
-
-            // send it to the Lex runtime
-            var params = {
-                botAlias: '$LATEST',
-                botName: 'ScheduleAppointment',
-                inputText: wisdom,
-                userId: lexUserId,
-                sessionAttributes: sessionAttributes
-            };
-            // showRequest(wisdom);
-            lexruntime.postText(params, function(err, data) {
-                if (err) {
-                    console.log(err, err.stack);
-                    showError('Error:  ' + err.message + ' (see console for details)')
-                }
-                if (data) {
-                    // capture the sessionAttributes for the next cycle
-                    sessionAttributes = data.sessionAttributes;
-                    // show response and/or error/dialog status
-                    showResponse(data);
-                }
-                // re-enable input
-                wisdomText.value = '';
-                wisdomText.locked = false;
-            });
-        }
-        // we always cancel form submission
-        return false;
-    }
-
-
-    function showRequest(daText) {
-        var conversationDiv = document.getElementById('conversation');
-        var requestPara = document.createElement("P");
-        requestPara.className = 'userRequest';
-        requestPara.appendChild(document.createTextNode(daText));
-        conversationDiv.appendChild(requestPara);
-        conversationDiv.scrollTop = conversationDiv.scrollHeight;
-    }
-
-
-    function showError(daText) {
-        var conversationDiv = document.getElementById('conversation');
-        var errorPara = document.createElement("P");
-        errorPara.className = 'lexError';
-        errorPara.appendChild(document.createTextNode(daText));
-        conversationDiv.appendChild(errorPara);
-        conversationDiv.scrollTop = conversationDiv.scrollHeight;
-    }
-
-
-    function getUniqueId(name) {
-        var dateTimeStr = new Date().getTime().toLocaleString();
-        var valueToReturn = name + dateTimeStr;
-        return valueToReturn;
-    }
-
-
-    function isJSONString(str) {
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
-    }
-
-
-    function convertToHTML(reponseFromLex) {
-        var genericAttachmentsLength = reponseFromLex.responseCard.genericAttachments.length;
-        var htmlToReturn = "<div style='responseCardBorders'>\n";
-        for (var i = 0; i < genericAttachmentsLength; i++) {
-            var tempGenericAttach = reponseFromLex.responseCard.genericAttachments[i];
-            if (tempGenericAttach.imageUrl) {
-                htmlToReturn = htmlToReturn.concat("<img src='" + tempGenericAttach.imageUrl + "' alt='" + tempGenericAttach.title + "' />\n")
-                htmlToReturn = htmlToReturn.concat("</br>\n");
-            }
-
-            if (tempGenericAttach.title) {
-                htmlToReturn = htmlToReturn.concat("<h6>" + tempGenericAttach.title + "</h6>\n");
-                // htmlToReturn = htmlToReturn.concat("</br>\n");
-            }
-
-            if (tempGenericAttach.subTitle) {
-                htmlToReturn = htmlToReturn.concat("<p>" + tempGenericAttach.subTitle + "</p>\n");
-                // htmlToReturn = htmlToReturn.concat("</br>\n");
-            }
-
-            if (tempGenericAttach.attachmentLinkUrl) {
-                htmlToReturn = htmlToReturn.concat("<a href='" + tempGenericAttach.attachmentLinkUrl + "'>" + tempGenericAttach.title + "</a>\n");
-                htmlToReturn = htmlToReturn.concat("</br>\n");
-            }
-
-            var numberOfButtoms = tempGenericAttach.buttons.length;
-            if (tempGenericAttach.buttons) {
-                htmlToReturn = htmlToReturn.concat("<table class='buttons'>\n");
-                htmlToReturn = htmlToReturn.concat("    <tbody>\n");
-                for(var tempCounter = 0; tempCounter < numberOfButtoms; tempCounter++) {
-                    var tempButtonValues = tempGenericAttach.buttons[tempCounter];
-                    var buttonUniqueId = getUniqueId("button");
-                    htmlToReturn = htmlToReturn.concat("    <tr>\n");
-                    htmlToReturn = htmlToReturn.concat("        <td>\n");
-                    // htmlToReturn = htmlToReturn.concat("<button style='myTableButton' value='" + tempButtonValues.value  + "' type='submit'>\n");
-                    htmlToReturn = htmlToReturn.concat("            <button class='btn btn-light' value='" + tempButtonValues.value  + "' id='" + tempCounter + buttonUniqueId + "' onclick='return pushButtonSelection(\"" + tempButtonValues.value + "\", \"" + tempCounter + buttonUniqueId + "\")'>\n");
-                    htmlToReturn = htmlToReturn.concat("                <span region-container='text'>" + tempButtonValues.text + "</span>\n");
-                    htmlToReturn = htmlToReturn.concat("            </button>\n");
-                    htmlToReturn = htmlToReturn.concat("        </td>\n");
-                    htmlToReturn = htmlToReturn.concat("    </tr>\n");
-                }
-                htmlToReturn = htmlToReturn.concat("    </tbody>\n");
-                htmlToReturn = htmlToReturn.concat("</table>\n");
-            }
-        }
-        htmlToReturn = htmlToReturn.concat("</div>\n");
-        console.log("\"" + htmlToReturn + "\"");
-        return htmlToReturn;
-    }
-
-
-    function showResponse(lexResponse) {
-        // console.log(lexResponse);
-        var conversationDiv = document.getElementById('conversation');
-        var responsePara = document.createElement("P");
-        responsePara.className = 'lexResponse';
-        if (lexResponse.message) {
-            if (isJSONString(lexResponse.message)) {
-                var messagesArray = JSON.parse(lexResponse.message);
-                var messagesArrayLength = messagesArray.messages.length;
-                for (var i = 0; i < messagesArrayLength; i++) {
-                    // console.log("i = " + i + " --- messagesArray.messages[i].value= " + messagesArray.messages[i].value);
-                    responsePara.appendChild(document.createTextNode(messagesArray.messages[i].value));
-                    responsePara.appendChild(document.createElement('br'));
-                }
-            } else {
-                // var message = JSON.stringify(lexResponse);
-                // responsePara.appendChild(document.createElement(esponsePara.innerHTML));
-                if (lexResponse.responseCard) {
-                    var htmlFromJSON = convertToHTML(lexResponse);
-                    responsePara.innerHTML = htmlFromJSON;
-                    responsePara.appendChild(document.createElement('br'));
-                } else {
-                    responsePara.appendChild(document.createTextNode(lexResponse.message));
-                }
-
-
-            }
-        }
-        // if (lexResponse.dialogState === 'ReadyForFulfillment') {
-        //     responsePara.appendChild(document.createTextNode(
-        //         'Ready for fulfillment'));
-        //     // TODO:  show slot values
-        // } else {
-        //     responsePara.appendChild(document.createTextNode(
-        //         '(' + lexResponse.dialogState + ')'));
-        // }
-        conversationDiv.appendChild(responsePara);
-        conversationDiv.scrollTop = conversationDiv.scrollHeight;
-    }
 </script>
 </body>
 

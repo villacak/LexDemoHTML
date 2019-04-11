@@ -158,8 +158,6 @@ function convertToHTML(reponseFromLex) {
                 htmlToReturn = htmlToReturn.concat("    <tr>\n");
                 htmlToReturn = htmlToReturn.concat("        <td>\n");
                 htmlToReturn = htmlToReturn.concat("            <button class='btn btn-light' value='" + tempButtonValues.value  + "' id='" + tempCounter + buttonUniqueId + "' onclick='return pushButtonSelection(\"" + tempButtonValues.value + "\", \"" + tempCounter + buttonUniqueId + "\")'>" + tempButtonValues.text + "<button>\n");
-                // htmlToReturn = htmlToReturn.concat("                <span region-container='text'>" + tempButtonValues.text + "</span>\n");
-                // htmlToReturn = htmlToReturn.concat("            </button>\n");
                 htmlToReturn = htmlToReturn.concat("        </td>\n");
                 htmlToReturn = htmlToReturn.concat("    </tr>\n");
             }
